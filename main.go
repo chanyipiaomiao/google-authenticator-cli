@@ -127,11 +127,4 @@ func cli(){
 
 func main() {
 	cli()
-	//key := "HJQXFA3FTMR5G4QO"
-	//n, t, _ := hltool.TwoStepAuthGenByKey(key)
-	//fmt.Printf("%s %s %d", key, n, t)
-	//fmt.Println()
-	//key2 := "HZZGGVW6FJMEHFCC"
-	//n2, t2, _ := hltool.TwoStepAuthGenByKey(key2)
-	//fmt.Printf("%s %s %d", key2, n2, t2)
 }
