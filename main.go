@@ -1,18 +1,21 @@
 package main
 
 import (
-	"gopkg.in/alecthomas/kingpin.v2"
-	"os"
-	"github.com/apex/log"
-	"github.com/chanyipiaomiao/hltool"
 	"fmt"
+	"github.com/chanyipiaomiao/hltool"
+	"github.com/gizak/termui"
+	"github.com/gosuri/uilive"
+	"gopkg.in/alecthomas/kingpin.v2"
+	"log"
+	"os"
 	"path"
+	"runtime"
 	"sort"
+	"time"
 )
 
-
 const (
-	secretDBName = "twostep.db"
+	secretDBName    = "twostep.db"
 	secretTableName = "secret"
 )
 
@@ -64,7 +67,7 @@ func (s *Secret) Delete(secret string) error {
 }
 
 func (s *Secret) List(name string) error {
-	if name != "all"{
+	if name != "all" {
 		r, err := s.TwoStepDB.Get([]string{name})
 		if err != nil {
 			return err
@@ -81,8 +84,47 @@ func (s *Secret) List(name string) error {
 	return nil
 }
 
+var (
+	newSecret *Secret
+)
 
-func cli(){
+func init() {
+	var err error
+	newSecret, err = NewSecret()
+	if err != nil {
+		log.Fatalf(" NewSecret() error: %s\n", err)
+	}
+}
+
+func ShowUI() {
+	err := termui.Init()
+	if err != nil {
+		log.Fatalf("termui.Init() error: %s\n", err)
+	}
+	defer termui.Close()
+	rows1 := [][]string{
+		[]string{"header1", "header2", "header3"},
+		[]string{"你好吗", "Go-lang is so cool", "Im working on Ruby"},
+		[]string{"2016", "10", "11"},
+	}
+
+	table1 := termui.NewTable()
+	table1.Rows = rows1
+	table1.FgColor = termui.ColorWhite
+	table1.BgColor = termui.ColorDefault
+	table1.Y = 0
+	table1.X = 0
+	table1.Width = 62
+	table1.Height = 7
+
+	termui.Render(table1)
+}
+
+func ShowWindowUI() {
+
+}
+
+func cli() {
 	app := kingpin.New("google-authenticator-cli", "模拟 Google Authenticator 验证器")
 
 	add := app.Command("add", "添加secret")
@@ -95,36 +137,61 @@ func cli(){
 	show := app.Command("show", "显示所有的6位数字")
 	showName := show.Flag("show-name", "显示指定的标识的6位数字").Default("all").String()
 
+	ui := app.Command("ui", "打开终端")
+	showUI := ui.Flag("show-ui", "显示终端UI").Default("false").Bool()
+
 	c, err := app.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatalf("parse cli args error: %s\n", err)
 	}
 
-	s, err := NewSecret()
-	if err != nil {
-		log.Fatalf(" NewSecret() error: %s\n", err)
-	}
-
 	switch c {
 	case "add":
-		err := s.Add(*addName, *secret)
+		err := newSecret.Add(*addName, *secret)
 		if err != nil {
 			log.Fatalf("s.Add(*addName, *secret) error: %s\n", err)
 		}
+		fmt.Println("add ok.")
 	case "delete":
-		err := s.Delete(*deleteName)
+		err := newSecret.Delete(*deleteName)
 		if err != nil {
 			log.Fatalf("s.Delete(*deleteName) error: %s\n", err)
 		}
+		fmt.Println("delete ok.")
 	case "show":
-		err := s.List(*showName)
+		err := newSecret.List(*showName)
 		if err != nil {
 			log.Fatalf("s.List(*showName) error: %s\n", err)
 		}
 	}
 
+	if *showUI {
+
+		if runtime.GOOS == "window" {
+			ShowWindowUI()
+		} else {
+			ShowUI()
+		}
+
+	}
+
+}
+
+func ui() {
+	writer := uilive.New()
+	// start listening for updates and render
+	writer.Start()
+
+	for i := 0; i <= 1000; i++ {
+		fmt.Fprintf(writer, "Downloading.. (%d/%d) GB\n", i, 1000)
+		time.Sleep(time.Millisecond * 5)
+	}
+
+	fmt.Fprintln(writer, "Finished: Downloaded 100GB")
+	writer.Stop() // flush and stop rendering
 }
 
 func main() {
-	cli()
+	//cli()
+	ui()
 }
