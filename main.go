@@ -104,7 +104,7 @@ func cli() {
 	deleteName := del.Flag("delete-secret", "名称标识").Required().String()
 
 	show := app.Command("show", "显示所有的6位数字")
-	showName := show.Flag("show-name", "显示指定的标识的6位数字").Default("all").String()
+	showName := show.Flag("show-secret", "显示指定的标识的6位数字").Default("all").String()
 
 	c, err := app.Parse(os.Args[1:])
 	if err != nil {
