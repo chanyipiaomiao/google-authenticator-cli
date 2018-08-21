@@ -9,6 +9,7 @@ import (
 
 	"github.com/chanyipiaomiao/hltool"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"strings"
 )
 
 const (
@@ -60,8 +61,10 @@ func (s *Secret) Delete(secret string) error {
 func (s *Secret) List(name string) error {
 	fmt.Printf("%-20s %-15s %-5s\n", "Name", "Number", "Remaining time")
 	fmt.Printf("%-20s %-15s %-5s\n", "----", "------", "--------------")
+
 	if name != "all" {
-		r, err := s.TwoStepDB.Get([]string{name})
+		s1 := checkSecret(name)
+		r, err := s.TwoStepDB.Get([]string{s1})
 		if err != nil {
 			return err
 		}
@@ -102,6 +105,16 @@ func init() {
 	}
 }
 
+// checkSecret 检查输入的secret的长度是否符合base32编码规则
+func checkSecret(secret string) string {
+	length := len(secret)
+	if length%8 == 0 {
+		return secret
+	}
+	n := length/8*8 + 8 - length
+	return secret + strings.Repeat("=", n)
+}
+
 func cli() {
 	app := kingpin.New("google-authenticator-cli", "模拟 Google Authenticator 验证器")
 
@@ -122,13 +135,15 @@ func cli() {
 
 	switch c {
 	case "add":
-		err := newSecret.Add(*addName, *secret)
+		s := checkSecret(*secret)
+		err := newSecret.Add(*addName, s)
 		if err != nil {
 			log.Fatalf("s.Add(*addName, *secret) error: %s\n", err)
 		}
 		fmt.Println("add ok.")
 	case "delete":
-		err := newSecret.Delete(*deleteName)
+		s := checkSecret(*deleteName)
+		err := newSecret.Delete(s)
 		if err != nil {
 			log.Fatalf("s.Delete(*deleteName) error: %s\n", err)
 		}
