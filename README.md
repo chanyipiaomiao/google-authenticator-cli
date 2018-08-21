@@ -2,15 +2,26 @@
 
 Google Authenticator 命令行客户端
 
+## 安装使用
+
+直接[**下载**](https://github.com/chanyipiaomiao/google-authenticator-cli/releases)二级制文件即可
+
 ## 使用说明
 
 #### 添加
 
+手动添加
 ```sh
 google-authenticator-cli add --name="aliyun" --secret=xxxxxxxxxxx
 
 --name   指定的是标识，就是为了方便辨认
 --secret 一般跟两步验证二维码一起展示，方便手动添加的
+```
+
+识别二维码添加
+
+```sh
+./google-authenticator-cli add --name="Test" --qrcode=二维码图片路径
 ```
 
 #### 删除
