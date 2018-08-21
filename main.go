@@ -22,13 +22,7 @@ func SortMapByKey(m map[string][]byte) []string {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	for _, v := range keys {
-		n, t, err := hltool.TwoStepAuthGenByKey(v)
-		if err != nil {
-			continue
-		}
-		fmt.Printf("%s %s %d\n", m[v], n, t)
-	}
+
 	return keys
 }
 
@@ -64,18 +58,33 @@ func (s *Secret) Delete(secret string) error {
 }
 
 func (s *Secret) List(name string) error {
+	fmt.Printf("%-20s %-15s %-5s\n", "Name", "Number", "Remaining time")
+	fmt.Printf("%-20s %-15s %-5s\n", "----", "------", "--------------")
 	if name != "all" {
 		r, err := s.TwoStepDB.Get([]string{name})
 		if err != nil {
 			return err
 		}
-		SortMapByKey(r)
+		for _, v := range SortMapByKey(r) {
+			n, t, err := hltool.TwoStepAuthGenByKey(v)
+			if err != nil {
+				continue
+			}
+			fmt.Printf("%-20s %-15s %-5d\n", r[v], n, t)
+		}
 	} else {
 		r, err := s.TwoStepDB.GetAll()
 		if err != nil {
 			return err
 		}
-		SortMapByKey(r)
+		for _, v := range SortMapByKey(r) {
+			n, t, err := hltool.TwoStepAuthGenByKey(v)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			fmt.Printf("%-20s %-15s %-5d\n", r[v], n, t)
+		}
 	}
 
 	return nil
