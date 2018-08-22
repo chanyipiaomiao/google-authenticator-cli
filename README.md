@@ -58,3 +58,4 @@ google-authenticator-cli show --show-secret="xxxx"
 ```sh
 watch -n 1 google-authenticator-cli show
 ```
+![示例](demo/google-autherticator.gif)
