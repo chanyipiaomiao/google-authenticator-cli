@@ -47,9 +47,9 @@ Common 603175 18
 第三列 剩余的时间(秒) 30秒循环一次
 ```
 
-展示指定的Name
+展示指定的name
 
-Name 有空格需要用双引号引起来
+name 有空格需要用双引号引起来
 
 ```sh
 google-authenticator-cli show --show-name="xxxx"
